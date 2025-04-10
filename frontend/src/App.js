@@ -1,10 +1,9 @@
 import { useState } from "react";
 
 function App() {
-  const [news, setNews] = useState(""); // 입력한 뉴스 저장
-  const [result, setResult] = useState(null); // 분석 결과 저장
+  const [news, setNews] = useState("");
+  const [result, setResult] = useState(null);
 
-  // 🔹 서버로 뉴스 데이터 보내는 함수
   const analyzeNews = async () => {
     try {
       const response = await fetch("http://localhost:5000/analyze", {
@@ -12,9 +11,8 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: news }),
       });
-
       const data = await response.json();
-      setResult(data.result); // 분석 결과 저장
+      setResult(data.result);
     } catch (error) {
       console.error("에러 발생:", error);
     }
@@ -25,7 +23,6 @@ function App() {
       <h1>가짜 뉴스 탐지 시스템</h1>
       <p>뉴스 기사를 입력하면 신뢰도를 분석해드립니다.</p>
 
-      {/* 🔹 뉴스 기사 입력창 */}
       <textarea
         value={news}
         onChange={(e) => setNews(e.target.value)}
@@ -36,7 +33,6 @@ function App() {
 
       <br />
 
-      {/* 🔹 분석 버튼 */}
       <button
         onClick={analyzeNews}
         style={{
@@ -49,10 +45,21 @@ function App() {
         분석하기
       </button>
 
-      {/* 🔹 분석 결과 표시 */}
       {result && (
-        <div style={{ marginTop: "20px", fontSize: "18px", fontWeight: "bold" }}>
-          분석 결과: {result}
+        <div
+          style={{
+            marginTop: "20px",
+            fontSize: "18px",
+            fontWeight: "bold",
+            color: result === "FAKE" ? "red" : "green",
+            backgroundColor: result === "FAKE" ? "#ffe6e6" : "#e0ffe6",
+            padding: "10px",
+            borderRadius: "10px",
+            display: "inline-block",
+          }}
+        >
+          분석 결과:{" "}
+          {result === "FAKE" ? "❌ 가짜 뉴스입니다!" : "✅ 진짜 뉴스입니다!"}
         </div>
       )}
     </div>
