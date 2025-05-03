@@ -11,7 +11,7 @@ from transformers import (
 )
 
 # 1. 데이터 로딩
-with open("파일 경로로", 'r', encoding='utf-8') as f:
+with open("C:/Users/배승환/OneDrive/바탕 화면/git/news_fake_detector/ai_model/all_news_with_fake_cleaned.json", 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 texts = [item['text'] for item in data if item['text']]
@@ -84,7 +84,8 @@ print("📊 테스트셋 메트릭:", predictions.metrics)
 print("📊 테스트셋 정확도:", predictions.metrics.get("test_accuracy", "정확도 없음"))
 
 # 10. 모델 저장
-model.save_pretrained('./best_model')
+trainer.save_model('./best_model')             # ✅ Trainer가 관리하는 모델 저장
 tokenizer.save_pretrained('./best_model')
 
 print("✅ KoBERT 학습 및 저장 완료")
+
