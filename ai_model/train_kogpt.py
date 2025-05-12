@@ -1,9 +1,10 @@
+#최종수정
 import json
 import torch
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 from transformers import (
-    GPT2Tokenizer,
+    PreTrainedTokenizerFast,
     GPT2Model,
     GPT2Config,
     GPT2PreTrainedModel,
@@ -14,7 +15,7 @@ from torch.utils.data import Dataset
 import torch.nn as nn
 
 # ✅ 1. 데이터 로딩
-with open("dataset/processed/fake_news_dataset_all_rewritten.jsonl", "r", encoding="utf-8") as f:
+with open("fake_news_dataset_all_rewritten.jsonl", "r", encoding="utf-8") as f:
     data = [json.loads(line) for line in f]
 
 texts = [item["text"] for item in data if item["text"]]
@@ -22,10 +23,16 @@ labels = [item["label"] for item in data if item["text"]]
 
 X_train, X_val, y_train, y_val = train_test_split(texts, labels, test_size=0.2, random_state=42)
 
-# ✅ 2. KoGPT tokenizer
+# ✅ 2. 정확한 KoGPT 토크나이저 사용
 model_name = "skt/kogpt2-base-v2"
-tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-tokenizer.pad_token = tokenizer.eos_token  # GPT2는 pad_token이 없음 → eos로 대체
+tokenizer = PreTrainedTokenizerFast.from_pretrained(
+    model_name,
+    bos_token='</s>',
+    eos_token='</s>',
+    unk_token='<unk>',
+    pad_token='<pad>',
+    mask_token='<mask>'
+)
 
 # ✅ 3. Dataset 정의
 class NewsDataset(Dataset):
@@ -49,23 +56,29 @@ class GPT2ForSequenceClassification(GPT2PreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.transformer = GPT2Model(config)
-        self.score = nn.Linear(config.hidden_size, 2)  # 이진 분류
+        self.score = nn.Linear(config.hidden_size, 2)
         self.config = config
+
+        # ✅ Trainer 오류 방지용
+        self.model_parallel = False
+        self.is_parallelizable = False
 
     def forward(self, input_ids, attention_mask=None, labels=None):
         outputs = self.transformer(input_ids=input_ids, attention_mask=attention_mask)
-        last_hidden = outputs.last_hidden_state  # [batch_size, seq_len, hidden]
-        cls_token = last_hidden[:, -1, :]  # 마지막 토큰 기준
+        last_hidden = outputs.last_hidden_state
+        cls_token = last_hidden[:, -1, :]
         logits = self.score(cls_token)
+
         loss = None
         if labels is not None:
             loss_fct = nn.CrossEntropyLoss()
             loss = loss_fct(logits, labels)
+
         return {"loss": loss, "logits": logits}
 
 # ✅ 5. 모델 로딩
 config = GPT2Config.from_pretrained(model_name)
-config.pad_token_id = tokenizer.pad_token_id
+config.pad_token_id = tokenizer.pad_token_id  # pad_token 적용
 model = GPT2ForSequenceClassification.from_pretrained(model_name, config=config)
 
 # ✅ 6. Trainer 설정
