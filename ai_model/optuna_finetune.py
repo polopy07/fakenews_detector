@@ -11,12 +11,13 @@ from transformers import (
     AutoTokenizer, AutoModelForSequenceClassification,
     Trainer, TrainingArguments, set_seed
 )
+from tqdm import tqdm
 
 # ✅ 시드 고정
 set_seed(42)
 
 # ✅ 데이터 로드
-with open("C:/Users/배승환/OneDrive/바탕 화면/news_dataset/fake_news_dataset_all_rewritten.jsonl", "r", encoding="utf-8") as f:
+with open("C:/Users/WIN/Desktop/git/news_fake_detector/dataset/processed/news_data_label1_text_cleaned.jsonl", "r", encoding="utf-8") as f:
     data = [json.loads(line) for line in f]
 
 random.shuffle(data)
@@ -47,11 +48,15 @@ class_weights_tensor = torch.tensor(class_weights, dtype=torch.float)
 
 # ✅ 커스텀 Trainer
 class WeightedTrainer(Trainer):
+    def __init__(self, *args, **kwargs):
+        self.class_weights_tensor = kwargs.pop("class_weights_tensor")
+        super().__init__(*args, **kwargs)
+
     def compute_loss(self, model, inputs, return_outputs=False):
         labels = inputs.get("labels")
         outputs = model(**inputs)
         logits = outputs.get("logits")
-        loss_fct = nn.CrossEntropyLoss(weight=class_weights_tensor.to(model.device))
+        loss_fct = nn.CrossEntropyLoss(weight=self.class_weights_tensor.to(model.device))
         loss = loss_fct(logits, labels)
         return (loss, outputs) if return_outputs else loss
 
@@ -73,7 +78,7 @@ def objective(trial):
     weight_decay = trial.suggest_float("weight_decay", 0.0, 0.1)
 
     # 모델 및 토크나이저 로딩
-    model_name = "klue/roberta-base"
+    model_name = "monologg/koelectra-base-discriminator"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
 
@@ -81,40 +86,47 @@ def objective(trial):
     train_dataset = NewsDataset(X_train, y_train, tokenizer)
     val_dataset = NewsDataset(X_val, y_val, tokenizer)
 
-    # 학습 설정
+    # 학습 설정 (GPU 사용 강제)
     training_args = TrainingArguments(
-    output_dir="./results",
-    learning_rate=learning_rate,
-    per_device_train_batch_size=batch_size,
-    per_device_eval_batch_size=batch_size,
-    num_train_epochs=epochs,
-    weight_decay=weight_decay,
-    evaluation_strategy="epoch",
-    save_strategy="epoch", 
-    logging_dir="./logs",
-    disable_tqdm=True,
-    save_total_limit=1,
-    load_best_model_at_end=True,
-    metric_for_best_model="f1"
-)
-
+        output_dir="./results",
+        no_cuda=not torch.cuda.is_available(),  # ✅ GPU 강제 사용 설정
+        learning_rate=learning_rate,
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        num_train_epochs=epochs,
+        weight_decay=weight_decay,
+        evaluation_strategy="epoch",
+        save_strategy="epoch",
+        logging_dir="./logs",
+        save_total_limit=1,
+        load_best_model_at_end=True,
+        metric_for_best_model="f1"
+    )
 
     trainer = WeightedTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        compute_metrics=compute_metrics
+        compute_metrics=compute_metrics,
+        class_weights_tensor=class_weights_tensor
     )
 
+    print(f"🔥 현재 모델 디바이스: {trainer.model.device}")  # 디버그용 출력
+
     trainer.train()
-    metrics = trainer.evaluate()
-    return metrics["eval_f1"]
+    eval_metrics = trainer.evaluate()
+    return eval_metrics["eval_f1"]
 
-# ✅ 튜닝 시작
+# ✅ Optuna 튜닝 진행
+n_trials = 10
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=10)
 
-# ✅ 최적 조합 출력
-print("🎯 Best hyperparameters:", study.best_params)
+with tqdm(total=n_trials, desc="🔍 Optuna 진행률", bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]") as pbar:
+    def callback(study, trial):
+        pbar.update(1)
+    study.optimize(objective, n_trials=n_trials, callbacks=[callback])
+
+# ✅ 최종 결과 출력
+print("\n🎯 Best hyperparameters:", study.best_params)
 print("🏆 Best F1-score:", study.best_value)
