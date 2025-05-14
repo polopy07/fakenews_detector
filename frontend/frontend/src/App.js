@@ -3,6 +3,7 @@ import { useState } from "react";
 function App() {
   const [news, setNews] = useState("");
   const [result, setResult] = useState(null);
+  const [label, setLabel] = useState(null); // ✅ 추가
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -15,15 +16,17 @@ function App() {
     setLoading(true);
     setErrorMsg("");
     setResult(null);
+    setLabel(null); // 초기화
 
     try {
-      const response = await fetch("http://localhost:5000/analyze", {
+      const response = await fetch("http://localhost:8000/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: news }),
       });
       const data = await response.json();
-      setResult(data.result);
+      setResult(data.result);   // 설명 문구 (ex: "🔴 가짜 뉴스로 판단됨")
+      setLabel(data.label);     
     } catch (error) {
       console.error("에러 발생:", error);
       setErrorMsg("서버와 연결할 수 없습니다. 다시 시도해 주세요.");
@@ -42,7 +45,6 @@ function App() {
         flexDirection: "column",
       }}
     >
-      {/* 상단 네비게이션 바 */}
       <header
         style={{
           backgroundColor: "#0056b3",
@@ -57,7 +59,6 @@ function App() {
         🧠 AI 뉴스 진위 판별 시스템
       </header>
 
-      {/* 메인 콘텐츠 */}
       <main
         style={{
           flex: 1,
@@ -157,7 +158,7 @@ function App() {
             </div>
           )}
 
-          {result && !loading && (
+          {label !== null && !loading && (
             <div
               style={{
                 marginTop: "30px",
@@ -165,33 +166,30 @@ function App() {
                 borderRadius: "12px",
                 fontSize: "22px",
                 fontWeight: "bold",
-                backgroundColor: result === "FAKE" ? "#f8d7da" : "#d4edda",
-                color: result === "FAKE" ? "#721c24" : "#155724",
+                backgroundColor: label === 1 ? "#f8d7da" : "#d4edda",
+                color: label === 1 ? "#721c24" : "#155724",
                 border: "2px solid",
-                borderColor: result === "FAKE" ? "#f5c6cb" : "#c3e6cb",
+                borderColor: label === 1 ? "#f5c6cb" : "#c3e6cb",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 textAlign: "center",
               }}
             >
-              {result === "FAKE"
-                ? "❌ 가짜 뉴스입니다!"
-                : "✅ 진짜 뉴스입니다!"}
+              {label === 1 ? "❌ 가짜 뉴스입니다!" : "✅ 진짜 뉴스입니다!"}
               <p
                 style={{
                   marginTop: "12px",
                   fontSize: "14px",
                   fontWeight: "normal",
-                  color: result === "FAKE" ? "#a94442" : "#3c763d",
+                  color: label === 1 ? "#a94442" : "#3c763d",
                 }}
               >
-                AI가 분석한 결과입니다. 단어 사용, 문장 구조, 패턴 등을 고려했습니다.
+                {result}
               </p>
             </div>
           )}
         </div>
       </main>
 
-      {/* 하단 푸터 */}
       <footer
         style={{
           textAlign: "center",
@@ -208,3 +206,4 @@ function App() {
 }
 
 export default App;
+
