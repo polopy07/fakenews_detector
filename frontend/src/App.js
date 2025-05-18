@@ -14,18 +14,6 @@ function App() {
       return;
     }
 
-    const MIN_LENGTH = 50;
-    const MAX_LENGTH = 1500;
-
-    if (news.length < MIN_LENGTH) {
-      setErrorMsg(`⚠️ 최소 ${MIN_LENGTH}자 이상 입력해 주세요.`);
-      return;
-    }
-    if (news.length > MAX_LENGTH) {
-      setErrorMsg(`⚠️ ${MAX_LENGTH}자 이하로 입력해 주세요.`);
-      return;
-    }
-
     setLoading(true);
     setErrorMsg("");
     setResult(null);
@@ -138,11 +126,12 @@ function App() {
 
           <button
             onClick={analyzeNews}
+            disabled={news.length < 50 || news.length > 1500} 
             style={{
               padding: "15px 30px",
               fontSize: "18px",
-              cursor: "pointer",
-              backgroundColor: "#007bff",
+              cursor: news.length < 50 || news.length > 1500 ? "not-allowed" : "pointer", // 마우스 커서 변경
+              backgroundColor: news.length < 50 || news.length > 1500 ? "#ccc" : "#007bff", // 회색으로 비활성화
               color: "white",
               border: "none",
               borderRadius: "10px",
@@ -152,16 +141,21 @@ function App() {
               boxShadow: "0 4px 10px rgba(0, 123, 255, 0.2)",
             }}
             onMouseOver={(e) => {
-              e.target.style.backgroundColor = "#0056b3";
-              e.target.style.transform = "scale(1.05)";
+              if (news.length >= 50 && news.length <= 1500) {
+                e.target.style.backgroundColor = "#0056b3";
+                e.target.style.transform = "scale(1.05)";
+              }
             }}
             onMouseOut={(e) => {
-              e.target.style.backgroundColor = "#007bff";
-              e.target.style.transform = "scale(1)";
+              if (news.length >= 50 && news.length <= 1500) {
+                e.target.style.backgroundColor = "#007bff";
+                e.target.style.transform = "scale(1)";
+              }
             }}
           >
             분석하기
           </button>
+
 
           {errorMsg && (
             <div
