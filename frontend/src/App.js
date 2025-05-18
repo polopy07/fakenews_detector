@@ -25,7 +25,9 @@ function getInputQualityScore(text) {
   // 기준치 조건
   const isTooShort = length < 50;
   const isTooLong = length > 3000;
-  const isTooRepetitive = wordRatio < 0.6 || charRatio < 0.25;
+  const isTooRepetitive =
+  (words.length >= 50 && wordRatio < 0.5) || // 길이가 충분할 때만 비율 적용
+  (cleaned.length >= 100 && charRatio < 0.2); // 너무 짧은 입력은 무시
   const isGibberish = hasMeaninglessPattern;
 
   const qualityIssues = [];
