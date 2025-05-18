@@ -6,6 +6,7 @@ function App() {
   const [label, setLabel] = useState(null); // ✅ 추가
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [prob, setProb] = useState(null); // ✅ 확률 저장용
 
   const analyzeNews = async () => {
     if (!news.trim()) {
@@ -25,6 +26,7 @@ function App() {
         body: JSON.stringify({ text: news }),
       });
       const data = await response.json();
+      setProb(data.probabilities);  // ← 확률 받아서 상태 저장
       setResult(data.result);   // 설명 문구 (ex: "🔴 가짜 뉴스로 판단됨")
       setLabel(data.label);     
     } catch (error) {
@@ -185,6 +187,20 @@ function App() {
               >
                 {result}
               </p>
+            </div>
+          )}
+          {prob && (
+            <div
+              style={{
+                marginTop: "15px",
+                fontSize: "14px",
+                color: "#555",
+                lineHeight: "1.6",
+              }}
+            >
+              <strong>예측 확률:</strong><br />
+              ✅ 진짜 뉴스일 확률: <strong>{(prob.real * 100).toFixed(2)}%</strong><br />
+              ❌ 가짜 뉴스일 확률: <strong>{(prob.fake * 100).toFixed(2)}%</strong>
             </div>
           )}
         </div>

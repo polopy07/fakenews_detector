@@ -70,10 +70,11 @@ def predict_fake_news(text):
         return {"error": "청크를 생성할 수 없습니다. 입력이 너무 짧거나 토큰화 실패."}
 
     # 기사 단위 softmax 평균 (가중치 포함)
-    probs = softmax(torch.stack(chunk_logits), dim=-1)
-    weights = torch.linspace(1.0, 2.0, len(probs)).unsqueeze(1).to(device)
-    weighted_probs = probs * weights
-    avg_probs = weighted_probs.mean(dim=0)
+    logits = torch.stack(chunk_logits)
+    weights = torch.linspace(1.0, 2.0, len(logits)).unsqueeze(1).to(device)
+    weighted_logits = logits * weights
+    avg_logits = weighted_logits.mean(dim=0)
+    avg_probs = torch.nn.functional.softmax(avg_logits, dim=0)
     
     real_prob = float(avg_probs[0])
     fake_prob = float(avg_probs[1])
@@ -93,6 +94,7 @@ def predict_fake_news(text):
         result = "🟢 진짜 뉴스로 판단됨"
 
     print(f"[DEBUG] Softmax: {avg_probs.tolist()} | Rule score: {rule_score} | Hybrid score: {final_score:.4f}")
+    print(f"[DEBUG] fake_prob: {fake_prob}, rule_score: {rule_score}, final_score: {final_score}, label: {label}")
 
     return {
         "label": label,
