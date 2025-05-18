@@ -2,6 +2,8 @@ import html
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.nn.functional import softmax
+from collections import Counter
+import re
 
 # 모델 경로
 model_path = "C:/Users/sasha/OneDrive/Desktop/best_sentence_chunking_model"
@@ -49,6 +51,18 @@ def sentence_window_tokenize(text, tokenizer, max_tokens=512, min_tokens=50):
 def rule_based_score(text):
     return sum(1 for kw in fake_keywords if kw in text)
 
+# 품질이 낮은 입력 감지 함수
+def is_low_quality(text):
+    words = re.findall(r'\b\w+\b', text)
+    if len(words) < 20:
+        return True  # 너무 짧음
+    unique_ratio = len(set(words)) / len(words)
+    if unique_ratio < 0.3:
+        return True  # 반복률 높음
+    if len(max(words, key=words.count)) / len(words) > 0.5:
+        return True  # 특정 단어 과다 반복
+    return False
+
 # 예측 함수
 def predict_fake_news(text):
     clean_text = html.unescape(text).replace("\r", " ").replace("\n", " ").strip()
@@ -58,6 +72,16 @@ def predict_fake_news(text):
     chunks = sentence_window_tokenize(clean_text, tokenizer)
     chunk_logits = []
 
+    clean_text = html.unescape(text).replace("\r", " ").replace("\n", " ").strip()
+    if is_low_quality(clean_text):
+        return {
+            "label": -1,
+            "result": "⚠️ 문장이 비정상적으로 반복되거나 너무 짧아 분석할 수 없습니다.",
+            "confidence": 0.0,
+            "probabilities": {"real": 0.0, "fake": 0.0},
+            "rule_score": 0
+        }
+    
     for chunk in chunks:
         inputs = tokenizer(chunk, return_tensors="pt", padding="max_length", truncation=True, max_length=512)
         inputs = {k: v.to(device) for k, v in inputs.items()}

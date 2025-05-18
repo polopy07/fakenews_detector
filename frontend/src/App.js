@@ -188,49 +188,69 @@ function App() {
             </div>
           )}
 
-          {label !== null && !loading && (
-            <div
+        {label !== null && label !== -1 && !loading && (
+          <div
+            style={{
+              marginTop: "30px",
+              padding: "25px",
+              borderRadius: "12px",
+              fontSize: "22px",
+              fontWeight: "bold",
+              backgroundColor: label === 1 ? "#f8d7da" : "#d4edda",
+              color: label === 1 ? "#721c24" : "#155724",
+              border: "2px solid",
+              borderColor: label === 1 ? "#f5c6cb" : "#c3e6cb",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              textAlign: "center",
+            }}
+          >
+            {label === 1 ? "❌ 가짜 뉴스입니다!" : "✅ 진짜 뉴스입니다!"}
+            <p
               style={{
-                marginTop: "30px",
-                padding: "25px",
-                borderRadius: "12px",
-                fontSize: "22px",
-                fontWeight: "bold",
-                backgroundColor: label === 1 ? "#f8d7da" : "#d4edda",
-                color: label === 1 ? "#721c24" : "#155724",
-                border: "2px solid",
-                borderColor: label === 1 ? "#f5c6cb" : "#c3e6cb",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                textAlign: "center",
-              }}
-            >
-              {label === 1 ? "❌ 가짜 뉴스입니다!" : "✅ 진짜 뉴스입니다!"}
-              <p
-                style={{
-                  marginTop: "12px",
-                  fontSize: "14px",
-                  fontWeight: "normal",
-                  color: label === 1 ? "#a94442" : "#3c763d",
-                }}
-              >
-                {result}
-              </p>
-            </div>
-          )}
-          {prob && (
-            <div
-              style={{
-                marginTop: "15px",
+                marginTop: "12px",
                 fontSize: "14px",
-                color: "#555",
-                lineHeight: "1.6",
+                fontWeight: "normal",
+                color: label === 1 ? "#a94442" : "#3c763d",
               }}
             >
-              <strong>예측 확률:</strong><br />
-              ✅ 진짜 뉴스일 확률: <strong>{(prob.real * 100).toFixed(2)}%</strong><br />
-              ❌ 가짜 뉴스일 확률: <strong>{(prob.fake * 100).toFixed(2)}%</strong>
-            </div>
-          )}
+              {result}
+            </p>
+          </div>
+        )}
+
+        {/* 예측 불가 메시지 (label === -1) */}
+        {label === -1 && !loading && (
+          <div
+            style={{
+              marginTop: "30px",
+              padding: "20px",
+              borderRadius: "10px",
+              fontSize: "16px",
+              color: "#d9534f",
+              backgroundColor: "#f9d6d5",
+              border: "1px solid #f5c6cb",
+              textAlign: "center",
+            }}
+          >
+            ⚠️ {result}
+          </div>
+        )}
+
+        {/* 예측 확률 (정상 label만 표시) */}
+        {prob && label !== -1 && (
+          <div
+            style={{
+              marginTop: "15px",
+              fontSize: "14px",
+              color: "#555",
+              lineHeight: "1.6",
+            }}
+          >
+            <strong>예측 확률:</strong><br />
+            ✅ 진짜 뉴스일 확률: <strong>{(prob.real * 100).toFixed(2)}%</strong><br />
+            ❌ 가짜 뉴스일 확률: <strong>{(prob.fake * 100).toFixed(2)}%</strong>
+          </div>
+        )}
         </div>
       </main>
 
