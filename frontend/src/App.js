@@ -14,6 +14,18 @@ function App() {
       return;
     }
 
+    const MIN_LENGTH = 50;
+    const MAX_LENGTH = 1500;
+
+    if (news.length < MIN_LENGTH) {
+      setErrorMsg(`⚠️ 최소 ${MIN_LENGTH}자 이상 입력해 주세요.`);
+      return;
+    }
+    if (news.length > MAX_LENGTH) {
+      setErrorMsg(`⚠️ ${MAX_LENGTH}자 이하로 입력해 주세요.`);
+      return;
+    }
+
     setLoading(true);
     setErrorMsg("");
     setResult(null);
@@ -108,6 +120,15 @@ function App() {
               backgroundColor: "#f9f9f9",
             }}
           ></textarea>
+          <p 
+          style={{ 
+            fontSize: "13px", 
+            color: "#888", 
+            marginTop: "-20px", 
+            marginBottom: "20px"
+             }}>
+          ({news.length} / 1500자)
+          </p>
 
           <button
             onClick={analyzeNews}
