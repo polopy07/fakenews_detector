@@ -3,7 +3,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # 모델 경로 설정
-model_path = "C:/Users/배승환/OneDrive/바탕 화면/git/news_fake_detector/koelectra_best_model"
+model_path = "C:/Users/sasha/OneDrive/Desktop/best_article_model"
 tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(model_path, local_files_only=True)
 
