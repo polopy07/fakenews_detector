@@ -19,8 +19,8 @@ function getInputQualityScore(text) {
   const wordRatio = uniqueWords.size / words.length;
   const charRatio = uniqueChars.size / cleaned.length;
 
-  const hasMeaninglessPattern = /(ㅋㅋ+|ㅎㅎ+|[a-zA-Z]{12,}|[!@#$%^&*()_+=\-{}[\]:;"'<>,.?/~`\\|]{4,}){2,}/
-.test(text);
+  const hasMeaninglessPattern =
+  /(ㅋㅋ+|ㅎㅎ+|ㅠㅠ+|ㅜㅜ+|zz+|ㄷㄷ+|ㄲㄲ+|www+|응애+|ㅡㅡ+|asdf+|[a-zA-Z]{12,}|[!@#$%^&*()_+=\-{}[\]:;"'<>,.?/~`\\|]{4,}){2,}/.test(text);
 
   // 기준치 조건
   const isTooShort = length < 50;
@@ -32,8 +32,8 @@ function getInputQualityScore(text) {
 
   const qualityIssues = [];
 
-  if (isTooShort) qualityIssues.push("⚠️ 글자 수가 너무 적습니다.");
-  if (isTooLong) qualityIssues.push("⚠️ 글자 수가 너무 많습니다.");
+  if (isTooShort) qualityIssues.push("");
+  if (isTooLong) qualityIssues.push("");
   if (isTooRepetitive) qualityIssues.push("⚠️ 반복 단어/문자가 과도하게 많습니다.");
   if (isGibberish) qualityIssues.push("⚠️ 의미 없는 패턴(특수문자)이 포함되어 있습니다.");
 
