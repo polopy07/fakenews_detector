@@ -38,6 +38,12 @@ function App() {
         body: JSON.stringify({ text: news }),
       });
       const data = await response.json();
+      if (data.error) {
+      setErrorMsg("⚠️ 문장을 이해할 수 없어 분석할 수 없습니다.");
+      setLoading(false);
+      setProb(null); // ✅ 확률 초기화 추가
+      return;
+    }
       setProb(data.probabilities);  // ← 확률 받아서 상태 저장
       setResult(data.result);   // 설명 문구 (ex: "🔴 가짜 뉴스로 판단됨")
       setLabel(data.label);     
