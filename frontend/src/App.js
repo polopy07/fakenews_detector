@@ -8,6 +8,39 @@ function App() {
   const [errorMsg, setErrorMsg] = useState("");
   const [prob, setProb] = useState(null); // ✅ 확률 저장용
 
+  // 🔧 입력 품질 검사 함수 (컴포넌트 외부에 정의)
+function getInputQualityScore(text) {
+  const cleaned = text.replace(/\s+/g, ""); // 공백 제거
+  const words = text.split(/\s+/).filter((w) => w.length > 0);
+  const uniqueWords = new Set(words);
+  const uniqueChars = new Set(cleaned);
+
+  const length = cleaned.length;
+  const wordRatio = uniqueWords.size / words.length;
+  const charRatio = uniqueChars.size / cleaned.length;
+
+  const hasMeaninglessPattern = /(ㅋㅋ+|ㅎㅎ+|[a-zA-Z]{5,}|[!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/~`\\|]+){2,}/.test(text);
+
+  // 기준치 조건
+  const isTooShort = length < 50;
+  const isTooLong = length > 1500;
+  const isTooRepetitive = wordRatio < 0.2 || charRatio < 0.15;
+  const isGibberish = hasMeaninglessPattern;
+
+  const qualityIssues = [];
+
+  if (isTooShort) qualityIssues.push("⚠️ 글자 수가 너무 적습니다.");
+  if (isTooLong) qualityIssues.push("⚠️ 글자 수가 너무 많습니다.");
+  if (isTooRepetitive) qualityIssues.push("⚠️ 반복 단어/문자가 과도하게 많습니다.");
+  if (isGibberish) qualityIssues.push("⚠️ 의미 없는 패턴(특수문자)이 포함되어 있습니다.");
+
+
+  return {
+    isValid: qualityIssues.length === 0,
+    issues: qualityIssues
+  };
+}
+
   const analyzeNews = async () => {
     if (!news.trim()) {
       setErrorMsg("⚠️ 뉴스 기사를 입력해 주세요!");
@@ -43,6 +76,8 @@ function App() {
       setLoading(false);
     }
   };
+  
+  const quality = getInputQualityScore(news);
 
   return (
     <div
@@ -124,37 +159,43 @@ function App() {
           ({news.length} / 1500자)
           </p>
 
-          <button
-            onClick={analyzeNews}
-            disabled={news.length < 50 || news.length > 1500} 
-            style={{
-              padding: "15px 30px",
-              fontSize: "18px",
-              cursor: news.length < 50 || news.length > 1500 ? "not-allowed" : "pointer", // 마우스 커서 변경
-              backgroundColor: news.length < 50 || news.length > 1500 ? "#ccc" : "#007bff", // 회색으로 비활성화
-              color: "white",
-              border: "none",
-              borderRadius: "10px",
-              transition: "all 0.3s ease",
-              width: "100%",
-              maxWidth: "200px",
-              boxShadow: "0 4px 10px rgba(0, 123, 255, 0.2)",
-            }}
-            onMouseOver={(e) => {
-              if (news.length >= 50 && news.length <= 1500) {
-                e.target.style.backgroundColor = "#0056b3";
-                e.target.style.transform = "scale(1.05)";
-              }
-            }}
-            onMouseOut={(e) => {
-              if (news.length >= 50 && news.length <= 1500) {
-                e.target.style.backgroundColor = "#007bff";
-                e.target.style.transform = "scale(1)";
-              }
-            }}
-          >
-            분석하기
-          </button>
+       <button
+          onClick={analyzeNews}
+          disabled={!quality.isValid} // ✅ 통합 검사 결과에 따라 비활성화
+          style={{
+            padding: "15px 30px",
+            fontSize: "18px",
+            cursor: !quality.isValid ? "not-allowed" : "pointer", // ✅ 커서
+            backgroundColor: !quality.isValid ? "#ccc" : "#007bff", // ✅ 배경색
+            color: "white",
+            border: "none",
+            borderRadius: "10px",
+            transition: "all 0.3s ease",
+            width: "100%",
+            maxWidth: "200px",
+            boxShadow: "0 4px 10px rgba(0, 123, 255, 0.2)",
+          }}
+          onMouseOver={(e) => {
+            if (quality.isValid) {
+              e.target.style.backgroundColor = "#0056b3";
+              e.target.style.transform = "scale(1.05)";
+            }
+          }}
+          onMouseOut={(e) => {
+            if (quality.isValid) {
+              e.target.style.backgroundColor = "#007bff";
+              e.target.style.transform = "scale(1)";
+            }
+          }}
+        >
+          분석하기
+        </button>
+
+        {!quality.isValid && quality.issues.map((msg, i) => (
+  <p key={i} style={{ color: "#d9534f", fontSize: "14px", marginBottom: "4px" }}>
+    {msg}
+  </p>
+))}
 
 
           {errorMsg && (
