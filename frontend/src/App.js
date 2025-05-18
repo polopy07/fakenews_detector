@@ -98,7 +98,7 @@ function App() {
           <textarea
             value={news}
             onChange={(e) => setNews(e.target.value)}
-            placeholder="뉴스 기사를 입력하세요..."
+            placeholder="뉴스 기사를 입력하세요(50 ~ 1500자). . ."
             rows="8"
             style={{
               width: "100%",
