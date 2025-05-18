@@ -32,6 +32,7 @@ function App() {
     } catch (error) {
       console.error("에러 발생:", error);
       setErrorMsg("서버와 연결할 수 없습니다. 다시 시도해 주세요.");
+      setProb(null); // ✅ 확률 초기화 추가
     } finally {
       setLoading(false);
     }
