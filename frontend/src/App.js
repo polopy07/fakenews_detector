@@ -232,7 +232,7 @@ function App() {
               textAlign: "center",
             }}
           >
-            ⚠️ {result}
+             {result}
           </div>
         )}
 
