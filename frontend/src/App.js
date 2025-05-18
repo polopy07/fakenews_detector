@@ -19,12 +19,13 @@ function getInputQualityScore(text) {
   const wordRatio = uniqueWords.size / words.length;
   const charRatio = uniqueChars.size / cleaned.length;
 
-  const hasMeaninglessPattern = /(ㅋㅋ+|ㅎㅎ+|[a-zA-Z]{5,}|[!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/~`\\|]+){2,}/.test(text);
+  const hasMeaninglessPattern = /(ㅋㅋ+|ㅎㅎ+|[a-zA-Z]{12,}|[!@#$%^&*()_+=\-{}[\]:;"'<>,.?/~`\\|]{4,}){2,}/
+.test(text);
 
   // 기준치 조건
   const isTooShort = length < 50;
-  const isTooLong = length > 1500;
-  const isTooRepetitive = wordRatio < 0.2 || charRatio < 0.15;
+  const isTooLong = length > 3000;
+  const isTooRepetitive = wordRatio < 0.6 || charRatio < 0.25;
   const isGibberish = hasMeaninglessPattern;
 
   const qualityIssues = [];
@@ -76,8 +77,11 @@ function getInputQualityScore(text) {
       setLoading(false);
     }
   };
-  
-  const quality = getInputQualityScore(news);
+
+  const quality = errorMsg === "서버와 연결할 수 없습니다. 다시 시도해 주세요."
+  ? { isValid: true, issues: [] }
+  : getInputQualityScore(news);
+
 
   return (
     <div
@@ -156,7 +160,7 @@ function getInputQualityScore(text) {
             marginTop: "-20px", 
             marginBottom: "20px"
              }}>
-          ({news.length} / 1500자)
+          ({news.length} / 3000자)
           </p>
 
        <button
@@ -191,12 +195,14 @@ function getInputQualityScore(text) {
           분석하기
         </button>
 
-        {!quality.isValid && quality.issues.map((msg, i) => (
-  <p key={i} style={{ color: "#d9534f", fontSize: "14px", marginBottom: "4px" }}>
-    {msg}
-  </p>
-))}
-
+      {!errorMsg &&
+        quality.issues
+          .filter(msg => !msg.includes("글자 수")) // ✅ 글자 수 경고는 제외
+          .map((msg, i) => (
+            <p key={i} style={{ color: "#d9534f", fontSize: "14px", marginBottom: "4px" }}>
+              {msg}
+            </p>
+      ))}
 
           {errorMsg && (
             <div
