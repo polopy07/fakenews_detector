@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.nn.functional import softmax
 
 # 모델 경로
-model_path = "C:/Users/sasha/OneDrive/Desktop/best_article_model"
+model_path = "C:/Users/sasha/OneDrive/Desktop/best_sentence_chunking_model"
 tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(model_path, local_files_only=True)
 
