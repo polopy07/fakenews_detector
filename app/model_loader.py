@@ -1,17 +1,26 @@
 import html
 import torch
 import re
+import os
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.nn.functional import softmax
-import os
+from huggingface_hub import login  
 
-# 환경변수에서 모델 이름 가져오기
+# 환경변수에서 Hugging Face Token 불러오기 (Render에서 설정된 값 사용)
+hf_token = os.getenv("HF_TOKEN")
+if hf_token:
+    login(hf_token)
+else:
+    raise RuntimeError("❌ HF_TOKEN 환경변수가 설정되지 않았습니다.")
+
+# 모델 이름도 환경변수로부터 가져오기 (기본값 포함)
 model_name = os.getenv("MODEL_NAME", "olopy/fakenews")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# from_pretrained에 torch_dtype 설정
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSequenceClassification.from_pretrained(model_name, torch_dtype=torch.float32)
+# private 모델 로딩 시 auth_token 사용
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=True)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, torch_dtype=torch.float32, use_auth_token=True)
+
 model.to(device)
 model.eval()
 
