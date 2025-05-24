@@ -81,6 +81,8 @@ def predict_fake_news(text):
         "🟢 진짜 뉴스로 판단됨"
     )
 
+    print("[DEBUG] 최종 label:", label, "| result:", result_msg)
+
     return {
         "label": label,
         "confidence": round(final_score, 4),
@@ -91,3 +93,5 @@ def predict_fake_news(text):
         },
         "rule_score": rule_score
     }
+
+
