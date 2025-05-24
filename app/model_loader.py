@@ -44,27 +44,9 @@ def sentence_window_tokenize(text, max_tokens=512, min_tokens=50):
 def rule_based_score(text):
     return sum(1 for kw in fake_keywords if kw in text)
 
-def is_low_quality(text):
-    words = re.findall(r'\b\w+\b', text)
-    if len(words) < 20:
-        return True
-    unique_ratio = len(set(words)) / len(words)
-    if unique_ratio < 0.3:
-        return True
-    if len(max(words, key=words.count)) / len(words) > 0.5:
-        return True
-    return False
 
 def predict_fake_news(text):
     clean_text = html.unescape(text).replace("\r", " ").replace("\n", " ").strip()
-    if is_low_quality(clean_text):
-        return {
-            "label": -1,
-            "result": "⚠️ 문장이 비정상적으로 반복되거나 너무 짧아 분석할 수 없습니다.",
-            "confidence": 0.0,
-            "probabilities": {"real": 0.0, "fake": 0.0},
-            "rule_score": 0
-        }
 
     rule_score = rule_based_score(clean_text)
     rule_score_norm = rule_score / max_rule_score
