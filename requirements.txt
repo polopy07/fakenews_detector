@@ -1,7 +1,9 @@
 fastapi
 uvicorn
 transformers
-torch
 scikit-learn
 python-dotenv
 huggingface_hub
+# CPU 전용 PyTorch 설치
+torch==2.1.0+cpu
+-f https://download.pytorch.org/whl/torch_stable.html
