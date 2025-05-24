@@ -3,3 +3,5 @@ uvicorn
 transformers
 torch
 scikit-learn
+python-dotenv
+huggingface_hub

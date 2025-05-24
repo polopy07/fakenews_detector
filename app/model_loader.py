@@ -4,11 +4,32 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.nn.functional import softmax
 from collections import Counter
 import re
+import os
+#로컬   from dotenv import load_dotenv 
+from huggingface_hub import login
+
+# 환경변수 로드
+#load_dotenv()
+hf_token = os.getenv("HF_TOKEN")
+
+if hf_token:
+    login(hf_token)
+else:
+    raise RuntimeError("Hugging Face 토큰이 설정되지 않았습니다.")
+
+# 모델 이름 가져오기
+model_name = os.getenv("MODEL_NAME")
+if not model_name:
+    raise RuntimeError("MODEL_NAME 환경변수가 설정되지 않았습니다.")
 
 # 모델 경로
-model_path = "C:/Users/sasha/OneDrive/Desktop/best_sentence_chunking_model"
-tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
-model = AutoModelForSequenceClassification.from_pretrained(model_path, local_files_only=True)
+model_path = "olopy/fakenews"
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+model.eval()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
@@ -55,24 +76,18 @@ def rule_based_score(text):
 def is_low_quality(text):
     words = re.findall(r'\b\w+\b', text)
     if len(words) < 20:
-        return True  # 너무 짧음
+        return True
     unique_ratio = len(set(words)) / len(words)
     if unique_ratio < 0.3:
-        return True  # 반복률 높음
+        return True
     if len(max(words, key=words.count)) / len(words) > 0.5:
-        return True  # 특정 단어 과다 반복
+        return True
     return False
 
 # 예측 함수
 def predict_fake_news(text):
     clean_text = html.unescape(text).replace("\r", " ").replace("\n", " ").strip()
-    rule_score = rule_based_score(clean_text)
-    rule_score_norm = rule_score / max_rule_score
 
-    chunks = sentence_window_tokenize(clean_text, tokenizer)
-    chunk_logits = []
-
-    clean_text = html.unescape(text).replace("\r", " ").replace("\n", " ").strip()
     if is_low_quality(clean_text):
         return {
             "label": -1,
@@ -81,7 +96,13 @@ def predict_fake_news(text):
             "probabilities": {"real": 0.0, "fake": 0.0},
             "rule_score": 0
         }
-    
+
+    rule_score = rule_based_score(clean_text)
+    rule_score_norm = rule_score / max_rule_score
+
+    chunks = sentence_window_tokenize(clean_text, tokenizer)
+    chunk_logits = []
+
     for chunk in chunks:
         inputs = tokenizer(chunk, return_tensors="pt", padding="max_length", truncation=True, max_length=512)
         inputs = {k: v.to(device) for k, v in inputs.items()}
