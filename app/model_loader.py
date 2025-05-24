@@ -31,10 +31,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.eval()
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-model.eval()
-
 # 위험 키워드
 fake_keywords = [
     "음모론", "외계인", "좀비", "백신 사망", "기지 건설", "정부가 숨겼다",
