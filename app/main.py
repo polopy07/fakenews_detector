@@ -6,7 +6,7 @@ import os
 
 # 환경 변수에서 HF 토큰 불러오기
 HF_TOKEN = os.getenv("HF_TOKEN")
-API_URL = "https://api-inference.huggingface.co/models/olopy/fakenews"  # ← 모델 주소
+API_URL = "https://huggingface.co/olopy/fakenews"  # ← 모델 주소
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 app = FastAPI()
