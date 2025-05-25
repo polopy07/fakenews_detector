@@ -6,17 +6,17 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from huggingface_hub import login
 
 #  환경 변수로부터 모델 이름과 토큰
-hf_token = os.getenv("HF_TOKEN")
-model_name = os.getenv("MODEL_NAME")
+#hf_token = os.getenv("HF_TOKEN")
+#model_name = os.getenv("MODEL_NAME")
 
-if hf_token:
-    login(hf_token)
-else:
-    raise RuntimeError("HF_TOKEN 환경변수가 설정되지 않았습니다.")
+#if hf_token:
+ #   login(hf_token)
+#else:
+ #   raise RuntimeError("HF_TOKEN 환경변수가 설정되지 않았습니다.")
 
-#  모델과 토크나이저 로딩 (토큰 사용)
-tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=hf_token)
-model = AutoModelForSequenceClassification.from_pretrained(model_name, use_auth_token=hf_token, torch_dtype=torch.float32)
+#  모델과 토크나이저 로딩
+model = AutoModelForSequenceClassification.from_pretrained("olopy/fakenews")
+tokenizer = AutoTokenizer.from_pretrained("olopy/fakenews")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
