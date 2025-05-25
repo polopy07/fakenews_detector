@@ -18,8 +18,8 @@ model_name = os.getenv("MODEL_NAME", "olopy/fakenews")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # private 모델 로딩 시 auth_token 사용
-tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=True)
-model = AutoModelForSequenceClassification.from_pretrained(model_name, torch_dtype=torch.float32, use_auth_token=True)
+tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=hf_token)
+model = AutoModelForSequenceClassification.from_pretrained(model_name, use_auth_token=hf_token, torch_dtype=torch.float32)
 
 model.to(device)
 model.eval()
