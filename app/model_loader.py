@@ -7,7 +7,7 @@ from huggingface_hub import login
 
 #  환경 변수로부터 모델 이름과 토큰
 hf_token = os.getenv("HF_TOKEN")
-model_name = os.getenv("MODEL_NAME", "olopy/fakenews")
+model_name = os.getenv("MODEL_NAME")
 
 if hf_token:
     login(hf_token)
