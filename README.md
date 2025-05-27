@@ -32,22 +32,25 @@ Optuna를 활용해 KoELECTRA 모델의 하이퍼파라미터를 자동 탐색�
 
 모델 주소: [https://huggingface.co/olopy/fakenews_pridict](https://huggingface.co/olopy/fakenews_pridict)
 
-### 2. 백엔드 실행 (FastAPI)
+### 2.로컬 실행
 ```bash
 # 1. 가상환경 실행 (선택)
-python -m venv venv
-source venv/bin/activate   # macOS/Linux
-venv\Scripts\activate      # Windows
 
 # 2. 의존성 설치
 pip install -r requirements.txt
 
-# 3. 백엔드 실행
+# 3. FE
+cd app
 uvicorn app.main:app --reload
+
+# 4. BE
+cd frontend
+npm install
+npm start
 
 ```
 
-### [PPT 다운로드](./presentation.pptx)
+### [PPT 다운로드](./fakenews_detactor.pptx)
 
 ## 📸
 
