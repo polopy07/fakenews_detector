@@ -23,12 +23,38 @@
 - Scikit-learn, torch, etc.
 
 ---
+## 🚀 실행 방법
 
-## 모델 다운로드 및 사용 안내 (Hugging Face)
+###  1. 모델 다운로드
 
-이 프로젝트는 사전 학습된 KoELECTRA 모델을 기반으로 합니다.  
-아래 Hugging Face 저장소에서 모델을 수동으로 다운로드한 뒤, 로컬 경로에 배치하여 사용하세요.
+모델은 Hugging Face에서 직접 다운로드합니다.  
+아래 링크에서 다운로드한 후 `model/` 디렉토리에 압축을 해제하세요.
 
-### 모델 다운로드 주소
+🔗 모델 주소: [https://huggingface.co/olopy/fakenews](https://huggingface.co/olopy/fakenews)
 
-https://huggingface.co/olopy/fakenews
+> 다운로드한 모델 폴더 구조는 다음과 같아야 합니다:
+> ├── app/
+│   └── model_loader.py
+├── model/              ← 여기에 모델 압축 해제
+│   ├── config.json
+│   ├── pytorch_model.bin
+│   ├── tokenizer.json
+│   ├── vocab.txt
+│   └── …
+> 
+### 2. 백엔드 실행 (FastAPI)
+
+```bash
+# 1. 가상환경 실행 (선택)
+python -m venv venv
+source venv/bin/activate   # macOS/Linux
+venv\Scripts\activate      # Windows
+
+# 2. 의존성 설치
+pip install -r requirements.txt
+
+# 3. 백엔드 실행
+uvicorn app.main:app --reload
+
+
+
