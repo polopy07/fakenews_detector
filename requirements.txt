@@ -1,10 +1,17 @@
-fastapi
-uvicorn
+# Python version 
+python_version >= 3.10
+
+# === 핵심 라이브러리 (GPU용 PyTorch는 pip에서 별도 URL로 설치해야 함. 아래 참고) ===
 transformers==4.39.3
-huggingface_hub
-python-dotenv
 
-torch==2.1.0+cpu
--f https://download.pytorch.org/whl/torch_stable.html
+# === FastAPI 서버 구성 ===
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
 
-numpy<2.0
+# === 환경 관리 및 요청 ===
+requests>=2.31.0
+aiofiles>=23.2.1
+jinja2>=3.1.6
+httpx>=0.26.0
+python-multipart>=0.0.7
+starlette==0.46.2
