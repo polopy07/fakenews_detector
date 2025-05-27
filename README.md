@@ -17,8 +17,8 @@ Optuna를 활용해 KoELECTRA 모델의 하이퍼파라미터를 자동 탐색�
 ## 기술 스택
 
 - Python 3.10 이상
-- FastAPI (백엔드)
-- React (프론트엔드)
+- FastAPI
+- React
 - Hugging Face Transformers
 - Scikit-learn, torch, etc.
 
@@ -36,7 +36,7 @@ Optuna를 활용해 KoELECTRA 모델의 하이퍼파라미터를 자동 탐색�
 ```bash
 # 1. 가상환경 실행 (선택)
 
-# 2. 의존성 설치
+# 2. 패키지 설치
 pip install -r requirements.txt
 
 # 3. FE
