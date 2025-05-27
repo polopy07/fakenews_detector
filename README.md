@@ -47,6 +47,8 @@ uvicorn app.main:app --reload
 
 ```
 
+### [PPT 다운로드](./presentation.pptx)
+
 ## 📸
 
 ![예시](./images/fakenewspic.png)
