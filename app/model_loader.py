@@ -2,11 +2,10 @@ import html
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from torch.nn.functional import softmax
-from collections import Counter
 import re
 
 # 모델 경로
-model_path = "C:/Users/sasha/OneDrive/Desktop/best_sentence_chunking_model"
+model_path = " "    # 사용자가 지정한 경로
 tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(model_path, local_files_only=True)
 
