@@ -50,7 +50,7 @@ npm start
 
 ```
 
-### [PPT 다운로드](./fakenews_detactor.pptx)
+### [PPT 다운로드](./images/fakenews_detactor-4.pptx)
 
 ## 📸
 
